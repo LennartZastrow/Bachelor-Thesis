@@ -421,7 +421,7 @@ model.fit(
 ```
 
 ### Sprache
-Zur Feature Extraktion benutzen wir die `libroa`-Bibliothek. Es werden die folgenden Features extrahiert:
+Zur Feature Extraktion benutzen wir die `librosa`-Bibliothek. Es werden die folgenden Features extrahiert:
 - MFCCS
 - Mel Spectrogram
 - Chromagram
