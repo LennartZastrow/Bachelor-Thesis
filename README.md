@@ -2,21 +2,31 @@
 
 
 ## Übersicht
-Dieses Bachelorarbeit erforscht die Kongruenz zwischen Mimik, Körpersprache und Sprache durch den Einsatz vortrainierter CNN-Netzwerke. Speziell für Mimik und Körpersprache wurde ein eigenes Dataset erstellt. Tests erfolgen auf separaten Datensätzen, die die Emotionen einer Person zu einem bestimmten Zeitpunkt erfassen – für Mimik und Körpersprache als Frame und für Sprache als Audioframe (Monolog, 2-10 Sekunden, im Moment der Expression). Anschließend wird mittels des Pearson-Korrelationskoeffizienten eine paarweise Korrelationsanalyse durchgeführt. 
 
-Hinweis: Die Datenintegration(Pfade zu Bilder) wurde gekürzt, damit die Dokumentation übersichtlicher erscheint. Die vollständigen Daten sind der [Exeltabelle](Data/Timestamps) zu entnehmen. Für die Reproduktion des Projekts können die bereits bearbeiteten Datasets verwendet werden.
+Diese Bachelorarbeit untersucht die Kongruenz zwischen Mimik, Körpersprache und Sprache mithilfe von vortrainierten CNN-Netzwerken. Ein speziell für die Analyse von Mimik und Körpersprache entwickeltes Dataset kommt zum Einsatz. Die Untersuchung wird auf separaten Datensätzen durchgeführt, welche die Emotionen einer Person zu einem bestimmten Zeitpunkt erfassen – für Mimik und Körpersprache in Form von Frames und für Sprache als Audioframes (Monologe von 2-10 Sekunden Länge, zum Zeitpunkt der Expression). Anschließend erfolgt eine paarweise Korrelationsanalyse mittels des Pearson-Korrelationskoeffizienten.
+
+Hinweis: Aus Gründen der Übersichtlichkeit wurde die Datenintegration (Pfade zu Bildern) in dieser Dokumentation gekürzt. Die vollständigen Informationen sind in der [Exeltabelle](Data/Timestamps) hinterlegt. Für die Reproduktion des Projekts können die bereits aufbereiteten Datasets verwendet werden.
+
+1.  [Übersicht](#übersicht)
+2.  [Installation und Setup](#installation-und-setup)
+3.  [Dataset](#dataset)
+4.  [Verarbeitung und Integration bestehender Datasets](Verarbeitung-und-Integration-bestehender-Datasets)
+5.  [Models](#models)
+6.  [Testdata für Korrelationsanalyse](#testdata-für-korrelationsanalyse)
+7.  [Korrelationsanalyse](#korrelationsanalyse)
+
 
 ## Installation und Setup
 #### Hardware
-Für optimale Leistung basiert das Setup auf einem 13. Generation Intel Core i9 13900HX Prozessor mit 32 CPUs, ausgestattet mit 32 GB RAM und einer NVIDIA GeForce RTX 4070 Grafikkarte, um die Anforderungen moderner Deep-Learning-Aufgaben zu erfüllen.
+Für eine optimale Leistung basiert das Setup auf einem Intel Core i9 13900HX Prozessor der 13. Generation mit 32 CPUs, ergänzt durch 32 GB RAM und eine NVIDIA GeForce RTX 4070 Grafikkarte. Diese Konfiguration ist speziell darauf ausgerichtet, den hohen Anforderungen moderner Deep-Learning-Prozesse gerecht zu werden.
 
 #### Enviroment-Aufbau
-Für das Enviroment müssen folgende Packete installiert werden
+Für die Einrichtung des Arbeitsumfelds müssen folgende Pakete installiert werden:
 ```bash 
 pip install numpy matplotlib pandas librosa mtcnn
 ```
 
-**TensorFlow GPU** wurde installiert, um die Berechnungsgeschwindigkeit und Effizienz zu maximieren, da GPUs parallele Verarbeitung für schnelleres Training und Inferenz von Deep-Learning-Modellen bieten
+**TensorFlow GPU** wurde installiert, um die Berechnungsgeschwindigkeit und Effizienz zu maximieren. GPUs ermöglichen parallele Verarbeitung, was das Training und die Inferenz von Deep-Learning-Modellen erheblich beschleunigt.
 ```bash
 # Zur Installation von Cuda und CuDNN
 conda install -c conda-forge cudatoolkit=11.2 cudnn=8.1.0
@@ -29,10 +39,11 @@ import tensorflow as tf
 print(tf.config.list_physical_devices('GPU'))
 ```
 ## Dataset
-Um ein geeignetes Dataset zu erstellen mussten die Videos von den Interviews analysiert werden nach Expressionen und dann in die Ordner Ekel, Freude, Trauer, Angst gespeichert werden. Zu beachten ist, dass danach eine Ausselektierung von ungeeigneten Bilder per Hand erfolgen muss. Vorerst werden die Videos in Bilder geschnitten, welche als Gankörperbilder fungieren, danach wird mithilfe eines Gesichtsclassifiers das Mimik-Dataset erstellt
+Um ein passendes Dataset für die Analyse zu erstellen, war es notwendig, die Interview-Videos auf emotionale Ausdrücke hin zu untersuchen und diese dann entsprechend den Emotionen Ekel, Freude, Trauer und Angst zu kategorisieren. Wichtig dabei ist, dass nach der initialen Auswahl eine manuelle Überprüfung und ggf. das Entfernen ungeeigneter Bilder erfolgen muss. Im ersten Schritt werden die Videos in Einzelbilder zerlegt, die als Ganzkörperaufnahmen dienen. Anschließend wird mithilfe eines Gesichtserkennungs-Algorithmus das spezifische Dataset für Mimik zusammengestellt.
+
 ### Gankörperbilder
-Die Emotionsexpressionen, welche in Zeitabschnitten(Timestamps) dokumentiert wurden, können mithilfe dieses Codes geschnitten werden und in 24 Frames/Sekunde gespeichert werden. Es wurden fünf Leute interviewt. Die einzelnen Framesschnitte finden sich in dem [Ordner](Support_Code/Körpersprache/Fullbody_Framsplit) wieder. 
-Anschließend erfolgte eine Ausselektierung der ungeeigneten Bilder per Hand. 
+
+Die emotionellen Ausdrücke, die innerhalb bestimmter Zeitmarken (Timestamps) dokumentiert wurden, lassen sich durch den Einsatz des bereitgestellten Codes in Einzelbilder zerlegen und mit einer Rate von 24 Frames pro Sekunde abspeichern. Interviews mit insgesamt fünf Personen wurden für diese Zwecke geführt. Die resultierenden Einzelbilder der Framesschnitte sind im [Ordner](Support_Code/Körpersprache/Fullbody_Framsplit) zu finden. Nach diesem Prozess erfolgte eine manuelle Selektion, um Bilder, die für die Analyse ungeeignet waren, auszuschließen.
 
 ```python
 
@@ -115,9 +126,11 @@ print("Frames erfolgreich extrahiert und gespeichert.")
 
 
 ### Mimik-Dataset
-Es wurde ein MTCCN(Multi-task Cascaded Convolutional Networks) benutzt um Gesichter zu detektieren und diese aus dem Ganzkörper-Dataset zu extrahieren. Anschließend erfolgte noch eine Ausselektierung der ungeeigneten Bilder per Hand. Den vollständigen Code finden sie [hier](Support_Code/Körpersprache/Mimik)
+Zur Detektion und Extraktion von Gesichtern aus dem Ganzkörper-Dataset wurde MTCNN (Multi-task Cascaded Convolutional Networks) eingesetzt. Nach der automatischen Extraktion erfolgte eine manuelle Ausselektierung ungeeigneter Bilder. Den vollständigen Code für diesen Prozess finden Sie [hier](Support_Code/Körpersprache/Mimik).
 
-Import von MTCNN OS und CV2 und Festlegung der Pfade
+
+Für die Verarbeitung werden die Bibliotheken MTCNN für die Gesichtserkennung, os für Betriebssystem-interaktionen und cv2 für die Bildverarbeitung importiert. Anschließend erfolgt die Festlegung der notwendigen Pfade zur Organisation und Zugriff auf die Daten.
+
 ```python
 import cv2
 import os
@@ -127,7 +140,9 @@ from mtcnn import MTCNN
 basis_bildordner = "C:/Thesis/Data/Frames/Fullbody_sorted_Body_Language/"
 basis_emotionsordner = "C:/Thesis/Data/Frames/Mimik/"
 ```
-Erkennung der Gesichter im Ganzkörperbild
+
+Die Gesichtserkennung auf den Ganzkörperbildern wird mithilfe des MTCNN-Algorithmus durchgeführt. Dieser erkennt und extrahiert Gesichter aus den Bildern für die weitere Verarbeitung.
+
 ```python
 # Emotionsliste
 emotionen = ["Freude", "Ekel", "Trauer", "Wut", "Angst"]
@@ -158,7 +173,9 @@ for emotion in emotionen:
         ergebnisse = detector.detect_faces(bild)
 ```
 
-Erweiterung der Bildrahmens für eine vollständige Ansicht des Gesichtes. Teilweise wurden Stirn und Haare ohne diese Erweiterung abgeschnitten.
+
+Um den Bildrahmen für eine vollständige Ansicht des Gesichts zu erweitern und sicherzustellen, dass Stirn und Haare nicht abgeschnitten werden, wurde eine Anpassung vorgenommen. Diese Erweiterung gewährleistet, dass die Gesichtserkennung alle relevanten Merkmale inkludiert. 
+
 ```python
         # Verarbeite jedes erkannte Gesicht
         for ergebnis in ergebnisse:
@@ -185,20 +202,20 @@ print("Fertig!")
 
 
 ## Verarbeitung und Integration bestehender Datasets
-Um die Variation in den Daten zu erhöhen und damit die Gerneralierbarkeit des Models zu erhöhen, wurde exterene Datasets genutzt und konkateniert. 
-Die Mimikanalyse benötigte keine exterenen Datasets, da die Quantität des erstellten Datasets genügend war. 
-Für die *Körpersprache* wurden die beiden Datasets genutzt
-- Das BEAST-Set (Brain Emotional Activation of Survival Threats) von Beatrice de Gelder. Der Download erfolgt [hier](http://www.beatricedegelder.com/beast.html)
-- Der GEMEP-Corpus( The GEneva Multimodal Emotion Portrayals) von Bänziger und Scher. Der Download erfolgt nach Einreichung einer Einverständniserklärung [hier](https://www.unige.ch/cisa/gemep)
+Um die Datenvariation zu erhöhen und die Generalisierbarkeit des Modells zu verbessern, wurden externe Datensätze hinzugefügt und konkateniert. Für die Mimikanalyse war dies nicht notwendig, da das selbst erstellte Datenset bereits ausreichend umfangreich war. Für die Analyse der *Körpersprache* wurden jedoch folgende externe Datensätze verwendet:
+
+- Das **BEAST-Set** (Brain Emotional Activation of Survival Threats) von Beatrice de Gelder. Der Download ist [hier](http://www.beatricedegelder.com/beast.html) verfügbar.
+- Der **GEMEP-Corpus** (The GEneva Multimodal Emotion Portrayals) von Bänziger und Scherer, zugänglich nach Einreichung einer Einverständniserklärung [hier](https://www.unige.ch/cisa/gemep).
 
 #### BEAST-SET
-Zur Verarbeitung des Datasets von De Gelder wurden die entsprechenden Bilder in die Traindata-Ordner sortiert. Die Bilder wurden in den Dateinamen mit folgenden Beitelungen versehen, um die Emotion zuzuordnen.
-- AN : Wut
-- FE : Angst
-- HA : Freude
-- SA : Trauer
+Für die Verarbeitung des Datensets von De Gelder wurden die entsprechenden Bilder gemäß ihrer Emotionen sortiert und in die jeweiligen Trainingsdatenordner einsortiert. Die Dateinamen wurden mit spezifischen Kürzeln versehen, um die zugehörige Emotion zu kennzeichnen:
 
-Der folgende Code sortiert die Bilder in entsprechenden Emotionsordner 
+- **AN**: Wut
+- **FE**: Angst
+- **HA**: Freude
+- **SA**: Trauer
+
+Mit dem folgenden Code werden die Bilder in die entsprechenden Emotionsordner sortiert:
 ```python
 import os
 import shutil
@@ -239,14 +256,16 @@ for file in os.listdir(source_base_path):
 #### GEMEP-Corpus
 
 ### Sprache
-Da kein eigenes Dataset für die Audtio erstellt wurde, wurden drei unterschiedliche externe Datasets verwendet. 
-- RAVDESS Dataset. Der Download erfolgt [hier](https://www.kaggle.com/datasets/uwrfkaggler/ravdess-emotional-speech-audio)
-- EMO-Database. Der Download erfolgt [hier](https://www.kaggle.com/datasets/piyushagni5/berlin-database-of-emotional-speech-emodb)
-- GEMEP-Corpus. Der Download erfolgt [hier](https://www.unige.ch/cisa/gemep)
+Für die Audioanalyse im Rahmen dieses Projekts wurde kein eigenes Datenset erstellt, stattdessen wurden drei verschiedene externe Datensets genutzt:
 
-##### RAVEDESS Dataset
-RAVDESS-Dataset (The Ryerson Audio-Visual Database of Emotional Speech and Song) beinhaltet 7,356 Dateien mit einem Gesamtvolumen von 24.8 GB, aufgenommen von 24 professionellen Schauspielern (12 weiblich, 12 männlich), die zwei lexikalisch angeglichene Aussagen in einem neutralen nordamerikanischen Akzent vokalisieren.
-Zur Verarbeitung wurde sich hier wieder nur auf die Emotionen Ekel, Angst, Trauer und Freude konzentiert. Die Dateien sind schon im `.wav` Format, das geeignete Format für Feature Extraktion
+- **RAVDESS Dataset**: Zugänglich [hier](https://www.kaggle.com/datasets/uwrfkaggler/ravdess-emotional-speech-audio). 
+
+- **EMO-Database**: Verfügbar [hier](https://www.kaggle.com/datasets/piyushagni5/berlin-database-of-emotional-speech-emodb). 
+
+- **GEMEP-Corpus**: Der Download ist [hier](https://www.unige.ch/cisa/gemep) möglich.
+
+##### RAVDESS Dataset
+Das RAVDESS-Dataset (The Ryerson Audio-Visual Database of Emotional Speech and Song) enthält Aufnahmen, die spezifisch auf die Emotionen Ekel, Angst, Trauer und Freude fokussieren.Es umfasst 7.356 Dateien mit einem Gesamtvolumen von 24.8 GB, eingesprochen von 24 professionellen Schauspielern (12 weiblich, 12 männlich), die zwei lexikalisch abgestimmte Aussagen in einem neutralen nordamerikanischen Akzent darbieten. Alle Dateien liegen im `.wav` Format vor, welches sich optimal für die Feature-Extraktion eignet.
 
 ```python
 import os
@@ -285,9 +304,7 @@ move_files_based_on_emotion(ravdess_path, destination_paths)
 ```
 
 #### EMO-DB
-Die EMO-DB (Berlin Database of Emotional Speech)ist eine umfangreiche Sammlung für Sprachemotionsanalyse, bestehend aus deutschen Sprachaufnahmen, die verschiedene Emotionen wie Glück, Traurigkeit, Wut, Angst, Ekel, Überraschung und neutrale Zustände darstellen. Sie umfasst etwa 535 Aufnahmen von 10 Schauspielern und benötigt ca. 500 MB Speicherplatz. 
-Es wurde sich nur auf die zu vier testenden Emotionen beschränkt. Die Dateiennamen waren mit einem Buchstaben für die Emotion gekennzeichnet wie zum Beispiel `03a05Aa.wav`. Der vorletzte Buchstabe kennzeichnet die Emotion, also A entspricht Angst.
-Dieser Code hat die EMO-DB sortiert und ausselektiert.
+Die EMO-DB (Berlin Database of Emotional Speech) ist ein umfangreiches Datenset für die Analyse von Sprachemotionen, bestehend aus deutschen Sprachaufnahmen, die Emotionen wie Glück, Traurigkeit, Wut, Angst, Ekel, Überraschung und neutrale Zustände wiedergeben. Es beinhaltet ca. 535 Aufnahmen von 10 Sprechern und benötigt rund 500 MB Speicherplatz. Für dieses Projekt wurden lediglich die vier relevanten Emotionen berücksichtigt. Die Dateinamen sind mit einem Buchstaben zur Kennzeichnung der Emotion versehen, z.B. `03a05Aa.wav`, wobei der vorletzte Buchstabe die Emotion angibt (A steht für Angst). Der folgende Code wurde verwendet, um die EMO-DB entsprechend zu sortieren und auszuwählen.
 
 ```python
 # Dieser Code sortiert die einzelnen Auditodateien aus der EMO-DB in die entsprechenenden Ordner für Ekel, Angst, Trauer, Angst 
@@ -334,13 +351,13 @@ print("Fertig.")
 ```
 
 ## Models 
-Für die Analyse des Mimik und Körpersprache Dataset werden Pretrained Networks genutzt. Für die Analyse der Sprache wird eine Feature Extrakion genutzt. Die extrahierten Feautres werden dann als Tensor in ein Convolutional Neural Network übergeben und so analysiert.
+Für die Analyse der Mimik und Körpersprache werden vortrainierte Netzwerke eingesetzt, während für die Sprachanalyse eine Feature-Extraktion zur Anwendung kommt. Die extrahierten Features werden anschließend als Tensoren in ein Convolutional Neural Network (CNN) eingespeist, um eine detaillierte Analyse durchzuführen.
 ### Mimik und Körpersprache
-Für die Analyse bezüglich der Auswahl eines geeigneten Pre-Trained Networks wurde auf diese Netwerke geteste `ResNet50` , `Resnet101`,  `VGG16`, `VGG19`, `InceptionV3`, `DenseNet 169` und `EfficientNetB7`. Diese lassen sich in dem Ordner Model wiederfinden. Es wurden die Dataaugmentationtechniken *Rotation*, *RandomFlip* und *Contrast* genutzt. Diese Models und Architekturen wurden für Mimik und Körpersprache genutzt. 
+Für die Auswahl eines geeigneten vortrainierten Netzwerks zur Analyse von Mimik und Körpersprache wurden diverse Netze getestet: `ResNet50`, `ResNet101`, `VGG16`, `VGG19`, `InceptionV3`, `DenseNet169` und `EfficientNetB7`. Diese können im Ordner `Model` eingesehen werden. Zudem kamen Data-Augmentation-Techniken wie *Rotation*, *RandomFlip* und *Kontrastanpassung* zum Einsatz. Diese Modelle und Architekturen wurden speziell für die Analyse von Mimik und Körpersprache verwendet.
 
-Dies ist ein Beispiel für das `DensetNet169`.
+Beispiel für das `DensetNet169`.
 
-Import von allenFramworks und Packages
+Import von Framworkes und Packages
 ```python
 import datetime
 import numpy as np
@@ -356,9 +373,8 @@ from tensorflow.keras.applications import DenseNet169
 ```
 
 
-*Dataaugmentation* für Rotation, Drehen des Bildes und der Contrastveränderung. Es werden geringe Werte genutzt, damit das Model immernoch Lernen kann und nicht underfittet. 
+*Data Augmentation* wird durchgeführt, um die Variabilität der Trainingsdaten zu erhöhen, indem Bilder gedreht, gespiegelt und im Kontrast angepasst werden. Dabei werden moderate Einstellungen verwendet, um sicherzustellen, dass das Modell weiterhin effektiv lernt, ohne zu underfitten.
 ```python
-
 # Data Augmentation Layer hinzufügen
 data_augmentation = tf.keras.Sequential([
     tf.keras.layers.experimental.preprocessing.RandomRotation(0.2),  # Rotation um bis zu 20%
@@ -367,7 +383,9 @@ data_augmentation = tf.keras.Sequential([
 ])
 
 ```
-Preprocessing mit Keras. 
+
+Das Preprocessing der Daten erfolgt mit der Keras-Bibliothek. Hierbei werden die Bilder für das Training des neuronalen Netzwerks vorbereitet, indem sie skaliert und normalisiert werden. Dieser Schritt ist entscheidend, um sicherzustellen, dass das Modell die Daten effizient verarbeiten kann und die Input-Daten in einem einheitlichen Format vorliegen.
+
 ```python
 # Funktion zur Vorbereitung und Augmentation der Bilder
 def preprocess_and_augment_dataset(ds):
@@ -407,7 +425,8 @@ val_ds = preprocess_and_augment_dataset(val_ds)
 # Betitelung für Tensorboard
 experiment_name = "DenseNet169"
 ```
-*DensetNet169* laden und Basischschiten einfrieren für das Fine-Tuning
+Das *DenseNet169*-Modell wird geladen und die Basisschichten für das Fine-Tuning eingefroren. Durch das Einfrieren dieser Schichten werden die vortrainierten Gewichte beibehalten, während nur die oberen Schichten des Netzwerks für die spezifische Aufgabe trainiert werden. Dieser Ansatz ermöglicht es, von den bereits gelernten Merkmalen des Netzwerks auf umfangreichen Datensätzen zu profitieren und gleichzeitig die Modellanpassung auf die spezifischen Anforderungen der aktuellen Aufgabe zu fokussieren.
+
 ```python
 # Vortrainiertes Modell laden
 base_model = DenseNet169(input_shape=(224, 224, 3), include_top=False, weights='imagenet')
@@ -422,7 +441,8 @@ outputs = Dense(4, activation='softmax')(x)  # 4 Klassen für Emotionen
 model = Model(inputs, outputs)
 ```
 
-Model komplieren und Tensorboard hinzufügen für Visualisierung der Testergebnisse
+Das Modell nutzt den Optimierer 'adam' für effizientes Lernen durch adaptive Lernraten, kompiliert mit 'sparse_categorical_crossentropy' für die Verlustfunktion und 'accuracy' als Leistungsmetrik. TensorBoard wird für die Echtzeit-Visualisierung von Trainingsmetriken hinzugefügt, was die Optimierung und Anpassung des Trainingsprozesses erleichtert.
+
 ```python
 # Modell kompilieren und trainieren
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
@@ -441,12 +461,17 @@ model.fit(
 ```
 
 ### Sprache
-Zur Feature Extraktion benutzen wir die `librosa`-Bibliothek. Es werden die folgenden Features extrahiert:
-- MFCCS
-- Mel Spectrogram
-- Chromagram
-- Spectral contrast
-- Tonnetz
+Für die Feature-Extraktion aus Audiodateien wird die `librosa`-Bibliothek eingesetzt. Die extrahierten Features umfassen:
+
+- **MFCCs (Mel-Frequenz-Cepstralkoeffizienten):** Eine Darstellung der Kurzzeit-Leistungsspektren von Sound, basierend auf der Mel-Skala. Sie sind wichtig für die Sprach- und Musikerkennung, da sie die wahrgenommenen Frequenzen des menschlichen Gehörs nachahmen.
+
+- **Mel-Spektrogramm:** Eine visuelle Darstellung des Spektrums der Frequenzen eines Signals, wie sie über die Zeit variieren, ebenfalls basierend auf der Mel-Skala. Es wird oft in der Musik- und Spracherkennung verwendet, um die Energieverteilung bei verschiedenen Frequenzen zu zeigen.
+
+- **Chromagramm:** Ein Diagramm, das die Intensität der zwölf verschiedenen Tonhöhenklassen oder Chroma zeigt, unabhängig von der Oktavlage. Es ist nützlich für die Analyse von Musik, da es Informationen über die Harmonie liefert.
+
+- **Spektraler Kontrast:** Misst den Kontrast in den spektralen Spitzen und Tälern des Signals. Es wird verwendet, um unterschiedliche Klangtexturen zu differenzieren und kann zur Genreerkennung oder Instrumentenerkennung beitragen.
+
+- **Tonnetz:** Eine Darstellung von harmonischen Beziehungen zwischen Tönen. Es basiert auf Tonhöhenklassen und wird oft für die Analyse von musikalischer Harmonie und Tonart verwendet.
 
 ```python
 import os
@@ -498,7 +523,8 @@ def load_data_and_labels(base_path):
     return np.array(features_list), np.array(labels_list)
 ```
 
-Die extrahierten Features werden nun als als 1-dimensionaler Vektor als Input in ein CNN gegeben. Aufgrund der begrenzten Datenmenge, wird Dropout und L2-Regulariesierung benutzt um Overfitting zu vermeiden. 
+Die extrahierten Features werden als 1-dimensionaler Vektor in ein Convolutional Neural Network (CNN) eingespeist. Um Overfitting aufgrund der begrenzten Datenmenge zu verhindern, kommen Dropout und L2-Regularisierung zum Einsatz. Dropout reduziert die Komplexität des Modells, indem zufällig Ausgaben von Neuronen während des Trainings null gesetzt werden, was eine zu starke Anpassung an die Trainingsdaten verhindert. Die L2-Regularisierung fügt der Verlustfunktion einen Term hinzu, der große Gewichte bestraft, und fördert so ein einfacheres Modell mit glatteren Gewichtsverteilungen.
+
 ```python
 # CNN Modelldefinition mit L2-Regularisierung und Droppout
 def build_model(input_shape, number_of_classes):
@@ -535,7 +561,8 @@ X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.67, 
 
 model = build_model((193, 1), len(np.unique(labels)))
 ```
-Für optimale Testergebnisse und Reduzierung von Overfititng für eine Reduced Learning Rate verwenden. Ebenso Earlystopping, damit der Pik in der Validationdata herausgefunden wird.
+Um optimale Testergebnisse zu erzielen und Overfitting zu reduzieren, wird eine reduzierte Lernrate verwendet. Zusätzlich wird Early Stopping eingesetzt, um den optimalen Zeitpunkt für den Abbruch des Trainings zu bestimmen, basierend auf der Leistung der Validierungsdaten. Diese Strategie hilft dabei, den Punkt zu identifizieren, an dem das Modell am besten generalisiert, bevor es beginnt, sich zu sehr an die Trainingsdaten anzupassen.
+
 ```python
 # Callbacks zur Anpassung der Lernrate und zum frühzeitigen Stopp, falls keine Verbesserung mehr stattfindet
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, min_lr=0.00001)
@@ -549,15 +576,15 @@ print(f'Test accuracy: {test_acc}, Test loss: {test_loss}')
 
 
 ## Testdata für Korrelationsanalyse
-Für die Korrelationsanaylse würde ein seperates Test-Dataset erstellt. Die Tests werden mit speziellen Datensätzen durchgeführt, die Emotionen einer Person zu einem präzisen Zeitpunkt festhalten. Dabei werden Mimik und Körpersprache in Einzelbildern und sprachliche Äußerungen in Audiosequenzen (Monologe von 2 bis 10 Sekunden während der emotionalen Ausdrucksphase) erfasst. Somit wird getestet, ob Expressionen kongruent zueinander auftreten. 
+Für die Korrelationsanalyse wurde ein separates Test-Dataset erstellt, um die Kongruenz zwischen Mimik, Körpersprache und sprachlichen Äußerungen zu untersuchen. Dieses Dataset besteht aus spezifisch ausgewählten Datensätzen, die die Emotionen einer Person zu einem exakten Zeitpunkt erfassen, mit Einzelbildern für Mimik und Körpersprache sowie Audiosequenzen für sprachliche Äußerungen (2 bis 10 Sekunden lange Monologe während der Phase des emotionalen Ausdrucks). Ziel ist es zu analysieren, ob und wie stark diese Expressionen übereinstimmen.
 
 ### Testset für Sprache
-Die Installierung des Packets moviepy wir hier benötigt genutzt. 
+Für die Videoverarbeitung wird das Paket `moviepy` benötigt.
 ```bash
 pip install moviepy
 ```
 
-Für das Audio-Testset wurden die entscheidenen Stellen geschnitten und sortiert in die passenden Test-Data-Emotionsordner
+Das Audio-Testset wurde präzise zugeschnitten und entsprechend den Emotionskategorien in die zugehörigen Testdatenordner einsortiert.
 ```python
 
 import os
@@ -604,7 +631,7 @@ def schneiden_und_verschieben(tabelle, basis_pfad, ziel_ordner, emotion_name):
             new_audio.write_audiofile(ziel_datei_pfad, codec='aac')  # Verwende 'aac' als Codec
 ```
 
-Initialiserung der Pfade und Data. Hier nur als Beispiel, jeweils ein Stelle aus den Videos. Den vollständigen Code für Sprache, Mimik und Körpersprache finden Sie [hier](Support_Code/Evaluation/Testdata/testdaten_schneiden.ipynb).
+Initialisierung der Pfade und Daten erfolgt hier exemplarisch anhand einer ausgewählten Stelle aus den Videos. Den vollständigen Code für die Verarbeitung von Sprache, Mimik und Körpersprache finden Sie [hier](Support_Code/Evaluation/Testdata/testdaten_schneiden.ipynb).
 ```python
 # Basispfad, wo die Originaldateien gespeichert sind
 basis_pfad = "C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Audio"
@@ -639,8 +666,7 @@ schneiden_und_verschieben(tabelle_angst, basis_pfad, pfad_angst, "Angst")
 
 
 ### Testset für Mimik und Körper
-Das Testset für Mimik und Körper wird mithilfe dieses Algorithmus geschnitten. Eine gesamte Auflistung aller Schneidealgorithmen ist hier auffindbar. 
-Ebenso  ist das Packet shutil nötig, um die gewünschen Funtkionen `shutil.move`zu verwenden. 
+Das Testset für Mimik und Körpersprache wird mit dem angegebenen Algorithmus zugeschnitten. Eine vollständige Übersicht aller verwendeten Schneidealgorithmen ist über den angegebenen Link zugänglich. Zusätzlich wird das Paket `shutil` benötigt, um Funktionen wie `shutil.move` für die Dateiverwaltung einzusetzen.
 
 ```bash
 pip install shutil
