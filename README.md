@@ -31,7 +31,7 @@ print(tf.config.list_physical_devices('GPU'))
 ## Dataset
 Um ein geeignetes Dataset zu erstellen mussten die Videos von den Interviews analysiert werden nach Expressionen und dann in die Ordner Ekel, Freude, Trauer, Angst gespeichert werden. Zu beachten ist, dass danach eine Ausselektierung von ungeeigneten Bilder per Hand erfolgen muss. Vorerst werden die Videos in Bilder geschnitten, welche als Gankörperbilder fungieren, danach wird mithilfe eines Gesichtsclassifiers das Mimik-Dataset erstellt
 ### Gankörperbilder
-Die Emotionsexpressionen, welche in Zeitabschnitten(Timestamps) dokumentiert wurden, können mithilfe dieses Codes geschnitten werden und in 24 Frames/Sekunde gespeichert werden. Es wurden fünf Leute interviewt. Die einzelnen Framesschnitte finden sich in dem Ordner wieder. 
+Die Emotionsexpressionen, welche in Zeitabschnitten(Timestamps) dokumentiert wurden, können mithilfe dieses Codes geschnitten werden und in 24 Frames/Sekunde gespeichert werden. Es wurden fünf Leute interviewt. Die einzelnen Framesschnitte finden sich in dem [Ordner](Support_Code/Körpersprache/Fullbody_Framsplit) wieder. 
 Anschließend erfolgte eine Ausselektierung der ungeeigneten Bilder per Hand. 
 
 ```python
@@ -115,7 +115,7 @@ print("Frames erfolgreich extrahiert und gespeichert.")
 
 
 ### Mimik-Dataset
-Es wurde ein MTCCN(Multi-task Cascaded Convolutional Networks) benutzt um Gesichter zu detektieren und diese aus dem Ganzkörper-Dataset zu extrahieren. Anschließend erfolgte noch eine Ausselektierung der ungeeigneten Bilder per Hand.
+Es wurde ein MTCCN(Multi-task Cascaded Convolutional Networks) benutzt um Gesichter zu detektieren und diese aus dem Ganzkörper-Dataset zu extrahieren. Anschließend erfolgte noch eine Ausselektierung der ungeeigneten Bilder per Hand. Den vollständigen Code finden sie [hier](Support_Code/Körpersprache/Mimik)
 
 Import von MTCNN OS und CV2 und Festlegung der Pfade
 ```python
@@ -188,8 +188,8 @@ print("Fertig!")
 Um die Variation in den Daten zu erhöhen und damit die Gerneralierbarkeit des Models zu erhöhen, wurde exterene Datasets genutzt und konkateniert. 
 Die Mimikanalyse benötigte keine exterenen Datasets, da die Quantität des erstellten Datasets genügend war. 
 Für die *Körpersprache* wurden die beiden Datasets genutzt
-- Das BEAST-Set (Brain Emotional Activation of Survival Threats) von Beatrice de Gelder
-- Der GEMEP-Corpus
+- Das BEAST-Set (Brain Emotional Activation of Survival Threats) von Beatrice de Gelder. Der Download erfolgt [hier](http://www.beatricedegelder.com/beast.html)
+- Der GEMEP-Corpus( The GEneva Multimodal Emotion Portrayals) von Bänziger und Scher. Der Download erfolgt nach Einreichung einer Einverständniserklärung [hier](https://www.unige.ch/cisa/gemep)
 
 #### BEAST-SET
 Zur Verarbeitung des Datasets von De Gelder wurden die entsprechenden Bilder in die Traindata-Ordner sortiert. Die Bilder wurden in den Dateinamen mit folgenden Beitelungen versehen, um die Emotion zuzuordnen.
@@ -240,9 +240,9 @@ for file in os.listdir(source_base_path):
 
 ### Sprache
 Da kein eigenes Dataset für die Audtio erstellt wurde, wurden drei unterschiedliche externe Datasets verwendet. 
-- RAVDESS Dataset
-- EMO-Database
-- GEMEP-Corpus
+- RAVDESS Dataset. Der Download erfolgt [hier](https://www.kaggle.com/datasets/uwrfkaggler/ravdess-emotional-speech-audio)
+- EMO-Database. Der Download erfolgt [hier](https://www.kaggle.com/datasets/piyushagni5/berlin-database-of-emotional-speech-emodb)
+- GEMEP-Corpus. Der Download erfolgt [hier](https://www.unige.ch/cisa/gemep)
 
 ##### RAVEDESS Dataset
 RAVDESS-Dataset (The Ryerson Audio-Visual Database of Emotional Speech and Song) beinhaltet 7,356 Dateien mit einem Gesamtvolumen von 24.8 GB, aufgenommen von 24 professionellen Schauspielern (12 weiblich, 12 männlich), die zwei lexikalisch angeglichene Aussagen in einem neutralen nordamerikanischen Akzent vokalisieren.
@@ -604,7 +604,7 @@ def schneiden_und_verschieben(tabelle, basis_pfad, ziel_ordner, emotion_name):
             new_audio.write_audiofile(ziel_datei_pfad, codec='aac')  # Verwende 'aac' als Codec
 ```
 
-Initialiserung der Pfade und Data. Hier nur als Beispiel, jeweils ein Stelle aus den Videos. Den vollständigen Code finden Sie hier.
+Initialiserung der Pfade und Data. Hier nur als Beispiel, jeweils ein Stelle aus den Videos. Den vollständigen Code für Sprache, Mimik und Körpersprache finden Sie [hier](Support_Code/Evaluation/Testdata/testdaten_schneiden.ipynb).
 ```python
 # Basispfad, wo die Originaldateien gespeichert sind
 basis_pfad = "C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Audio"
