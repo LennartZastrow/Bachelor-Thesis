@@ -4,7 +4,7 @@
 ## Übersicht
 Dieses Bachelorarbeit erforscht die Kongruenz zwischen Mimik, Körpersprache und Sprache durch den Einsatz vortrainierter CNN-Netzwerke. Speziell für Mimik und Körpersprache wurde ein eigenes Dataset erstellt. Tests erfolgen auf separaten Datensätzen, die die Emotionen einer Person zu einem bestimmten Zeitpunkt erfassen – für Mimik und Körpersprache als Frame und für Sprache als Audioframe (Monolog, 2-10 Sekunden, im Moment der Expression). Anschließend wird mittels des Pearson-Korrelationskoeffizienten eine paarweise Korrelationsanalyse durchgeführt. 
 
-Hinweis: Die Datenintegration wurde gekürzt, damit die Dokumentation übersichtlicher erscheint. Die vollständigen Daten sind der Exeltabelle zu entnehmen. Für die Reproduktion des Projekts können die bereits bearbeiteten Datasets verwendet werden.
+Hinweis: Die Datenintegration(Pfade zu Bilder) wurde gekürzt, damit die Dokumentation übersichtlicher erscheint. Die vollständigen Daten sind der Exeltabelle zu entnehmen. Für die Reproduktion des Projekts können die bereits bearbeiteten Datasets verwendet werden.
 
 ## Installation und Setup
 #### Hardware
@@ -29,9 +29,10 @@ import tensorflow as tf
 print(tf.config.list_physical_devices('GPU'))
 ```
 ## Dataset
-Um ein geeignetes Dataset zu erstellen mussten die Videos von den Interviews analysiert werden nach Expressionen und dann in die Ordner Ekel, Freude, Trauer, Angst gespeichert werden. Zu beachten ist, dass danach eine Ausselektierung von ungeeigneten Bilder per Hand erfolgen muss. Vorerst werden die Videos in Bilder geschnitten, welche als Gankörper-Dataset fungieren, danach wird mithilfe eines Gesichtsclassifiers das Mimik-Dataset erstellt
-### Gankörper-Dataset 
+Um ein geeignetes Dataset zu erstellen mussten die Videos von den Interviews analysiert werden nach Expressionen und dann in die Ordner Ekel, Freude, Trauer, Angst gespeichert werden. Zu beachten ist, dass danach eine Ausselektierung von ungeeigneten Bilder per Hand erfolgen muss. Vorerst werden die Videos in Bilder geschnitten, welche als Gankörperbilder fungieren, danach wird mithilfe eines Gesichtsclassifiers das Mimik-Dataset erstellt
+### Gankörperbilder
 Die Emotionsexpressionen, welche in Zeitabschnitten(Timestamps) dokumentiert wurden, können mithilfe dieses Codes geschnitten werden und in 24 Frames/Sekunde gespeichert werden. Es wurden fünf Leute interviewt. Die einzelnen Framesschnitte finden sich in dem Ordner wieder. 
+Anschließend erfolgte eine Ausselektierung der ungeeigneten Bilder per Hand. 
 
 ```python
 
@@ -53,7 +54,8 @@ timestamp_sequences_freude = [
 
 # Pfad zu den Emotionsordnern
 emotion_folders = {
-   "freude": "Pfad" 
+   "freude": "Pfad",
+   "angst": "Pfad"
 }
 
 # Videocapture-Objekt erstellen
@@ -114,16 +116,19 @@ print("Frames erfolgreich extrahiert und gespeichert.")
 
 ### Mimik-Dataset
 Es wurde ein MTCCN(Multi-task Cascaded Convolutional Networks) benutzt um Gesichter zu detektieren und diese aus dem Ganzkörper-Dataset zu extrahieren. Anschließend erfolgte noch eine Ausselektierung der ungeeigneten Bilder per Hand.
+
+Import von MTCNN OS und CV2 und Festlegung der Pfade
 ```python
 import cv2
 import os
 from mtcnn import MTCNN
-import tensorflow as tf
 
 # Basispfade
 basis_bildordner = "C:/Thesis/Data/Frames/Fullbody_sorted_Body_Language/"
 basis_emotionsordner = "C:/Thesis/Data/Frames/Mimik/"
-
+```
+Erkennung der Gesichter im Ganzkörperbild
+```python
 # Emotionsliste
 emotionen = ["Freude", "Ekel", "Trauer", "Wut", "Angst"]
 
@@ -151,7 +156,10 @@ for emotion in emotionen:
 
         # Erkenne Gesichter im Bild
         ergebnisse = detector.detect_faces(bild)
+```
 
+Erweiterung der Bildrahmens für eine vollständige Ansicht des Gesichtes. Teilweise wurden Stirn und Haare ohne diese Erweiterung abgeschnitten.
+```python
         # Verarbeite jedes erkannte Gesicht
         for ergebnis in ergebnisse:
             x, y, w, h = ergebnis['box']
@@ -278,7 +286,7 @@ move_files_based_on_emotion(ravdess_path, destination_paths)
 
 #### EMO-DB
 Die EMO-DB (Berlin Database of Emotional Speech)ist eine umfangreiche Sammlung für Sprachemotionsanalyse, bestehend aus deutschen Sprachaufnahmen, die verschiedene Emotionen wie Glück, Traurigkeit, Wut, Angst, Ekel, Überraschung und neutrale Zustände darstellen. Sie umfasst etwa 535 Aufnahmen von 10 Schauspielern und benötigt ca. 500 MB Speicherplatz. 
-Es wurde sich nur auf die zu vier testen Emotionen beschränkt. Die Dateiennamen waren mit einem Buchstaben für die Emotion gekennzeichnet wie zum Beispiel `03a05Aa.wav`. Der vorletzte Buchstabe kennzeichnet die Emotion, also A entspricht Angst.
+Es wurde sich nur auf die zu vier testenden Emotionen beschränkt. Die Dateiennamen waren mit einem Buchstaben für die Emotion gekennzeichnet wie zum Beispiel `03a05Aa.wav`. Der vorletzte Buchstabe kennzeichnet die Emotion, also A entspricht Angst.
 Dieser Code hat die EMO-DB sortiert und ausselektiert.
 
 ```python
@@ -331,6 +339,8 @@ Für die Analyse des Mimik und Körpersprache Dataset werden Pretrained Networks
 Für die Analyse bezüglich der Auswahl eines geeigneten Pre-Trained Networks wurde auf diese Netwerke geteste `ResNet50` , `Resnet101`,  `VGG16`, `VGG19`, `InceptionV3`, `DenseNet 169` und `EfficientNetB7`. Diese lassen sich in dem Ordner Model wiederfinden. Es wurden die Dataaugmentationtechniken *Rotation*, *RandomFlip* und *Contrast* genutzt. Diese Models und Architekturen wurden für Mimik und Körpersprache genutzt. 
 
 Dies ist ein Beispiel für das `DensetNet169`.
+
+Import von allenFramworks und Packages
 ```python
 import datetime
 import numpy as np
@@ -343,12 +353,11 @@ from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications.densenet import preprocess_input
 from tensorflow.keras.applications import DenseNet169
+```
 
-# TensorFlow Warnungen unterdrücken
-tf.get_logger().setLevel('ERROR')
 
-# Betitelung für Tensorboard
-experiment_name = "DenseNet169"
+*Dataaugmentation* für Rotation, Drehen des Bildes und der Contrastveränderung. Es werden geringe Werte genutzt, damit das Model immernoch Lernen kann und nicht underfittet. 
+```python
 
 # Data Augmentation Layer hinzufügen
 data_augmentation = tf.keras.Sequential([
@@ -357,6 +366,9 @@ data_augmentation = tf.keras.Sequential([
     tf.keras.layers.experimental.preprocessing.RandomContrast(0.1),  # Zufällige Kontrastanpassung
 ])
 
+```
+Preprocessing mit Keras. 
+```python
 # Funktion zur Vorbereitung und Augmentation der Bilder
 def preprocess_and_augment_dataset(ds):
     # Zuerst Data Augmentation anwenden
@@ -392,6 +404,11 @@ val_ds = image_dataset_from_directory(
 # Anwendung der Vorverarbeitung (ohne Augmentation) auf Validierungsdaten
 val_ds = preprocess_and_augment_dataset(val_ds) 
 
+# Betitelung für Tensorboard
+experiment_name = "DenseNet169"
+```
+*DensetNet169* laden und Basischschiten einfrieren für das Fine-Tuning
+```python
 # Vortrainiertes Modell laden
 base_model = DenseNet169(input_shape=(224, 224, 3), include_top=False, weights='imagenet')
 base_model.trainable = False  # Einfrieren der Basis-Schichten
@@ -403,7 +420,10 @@ x = GlobalAveragePooling2D()(x)
 x = Dense(1024, activation='relu')(x)
 outputs = Dense(4, activation='softmax')(x)  # 4 Klassen für Emotionen
 model = Model(inputs, outputs)
+```
 
+Model komplieren und Tensorboard hinzufügen für Visualisierung der Testergebnisse
+```python
 # Modell kompilieren und trainieren
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
@@ -459,7 +479,9 @@ def extract_audio_features(file_path, n_fft=512):
     elif len(features) < 193:
         features = np.pad(features, (0, 193 - len(features)), 'constant')
     return features
-
+```
+Laden der Data und Labeln der vier Emotionen
+```python
 # Daten und Labels laden
 def load_data_and_labels(base_path):
     emotions = {'Angst': 0, 'Ekel': 1, 'Trauer': 2, 'Freude': 3}
@@ -474,8 +496,11 @@ def load_data_and_labels(base_path):
                 features_list.append(features)
                 labels_list.append(label)
     return np.array(features_list), np.array(labels_list)
+```
 
-# CNN Modelldefinition mit L2-Regularisierung und erweiterten Schichten
+Die extrahierten Features werden nun als als 1-dimensionaler Vektor als Input in ein CNN gegeben. Aufgrund der begrenzten Datenmenge, wird Dropout und L2-Regulariesierung benutzt um Overfitting zu vermeiden. 
+```python
+# CNN Modelldefinition mit L2-Regularisierung und Droppout
 def build_model(input_shape, number_of_classes):
     model = Sequential([
         Conv1D(256, 5, input_shape=input_shape, padding='same', kernel_regularizer=l2(0.001)),
@@ -498,7 +523,10 @@ def build_model(input_shape, number_of_classes):
     ])
     model.compile(optimizer=Adam(learning_rate=0.0001), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     return model
+```
+Initialiserung des Models
 
+```python
 # Hauptskript
 base_path = r'C:\Users\zastr\Desktop\Thesis\Data\Audio\Emo_DB'
 features, labels = load_data_and_labels(base_path)
@@ -506,7 +534,9 @@ X_train, X_temp, y_train, y_temp = train_test_split(features, labels, test_size=
 X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.67, random_state=42)
 
 model = build_model((193, 1), len(np.unique(labels)))
-
+```
+Für optimale Testergebnisse und Reduzierung von Overfititng für eine Reduced Learning Rate verwenden. Ebenso Earlystopping, damit der Pik in der Validationdata herausgefunden wird.
+```python
 # Callbacks zur Anpassung der Lernrate und zum frühzeitigen Stopp, falls keine Verbesserung mehr stattfindet
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, min_lr=0.00001)
 early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
@@ -522,11 +552,12 @@ print(f'Test accuracy: {test_acc}, Test loss: {test_loss}')
 Für die Korrelationsanaylse würde ein seperates Test-Dataset erstellt. Die Tests werden mit speziellen Datensätzen durchgeführt, die Emotionen einer Person zu einem präzisen Zeitpunkt festhalten. Dabei werden Mimik und Körpersprache in Einzelbildern und sprachliche Äußerungen in Audiosequenzen (Monologe von 2 bis 10 Sekunden während der emotionalen Ausdrucksphase) erfasst. Somit wird getestet, ob Expressionen kongruent zueinander auftreten. 
 
 ### Testset für Sprache
-Für das Audio-Testset wurden die entscheidenen Stellen geschnitten und sortiert in die passenden Test-Data-Emotionsordner.  Die Installierung des Packets moviepy wir hier benötigt genutzt. In der Dokumenation sind die Daten geküzt, für eine vollständige Auflistung der Daten, schauen Sie gerne hier. 
-
+Die Installierung des Packets moviepy wir hier benötigt genutzt. 
 ```bash
 pip install moviepy
 ```
+
+Für das Audio-Testset wurden die entscheidenen Stellen geschnitten und sortiert in die passenden Test-Data-Emotionsordner
 ```python
 
 import os
@@ -571,7 +602,10 @@ def schneiden_und_verschieben(tabelle, basis_pfad, ziel_ordner, emotion_name):
         with AudioFileClip(original_datei_pfad) as audio:
             new_audio = audio.subclip(start_seconds, end_seconds)
             new_audio.write_audiofile(ziel_datei_pfad, codec='aac')  # Verwende 'aac' als Codec
+```
 
+Initialiserung der Pfade und Data. Hier nur als Beispiel, jeweils ein Stelle aus den Videos. Den vollständigen Code finden Sie hier.
+```python
 # Basispfad, wo die Originaldateien gespeichert sind
 basis_pfad = "C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Audio"
 
@@ -582,23 +616,19 @@ pfad_ekel = "C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Testdata\\Sprache\\Ekel"
 pfad_angst = "C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Testdata\\Sprache\\Angst"
 
 # Beispiel der Tabelle, die Sie bereitgestellt haben
-tabelle_freude = [
-    ["Benny(Freude)", "3:08-3:14"],
+tabelle_freude = [["Benny(Freude)", "3:08-3:14"]]
 
 # Trauer
-tabelle_trauer = [
-    ["Benny(Trauer)", "1:53-2:04"],
-]
+tabelle_trauer = [ ["Benny(Trauer)", "1:53-2:04"]]
 
 # Ekel
-tabelle_ekel = [
-    ["Benny(Ekel)", "2:26-2:31"],
-]
+tabelle_ekel = [["Benny(Ekel)", "2:26-2:31"]]
 
 # Angst
-tabelle_angst = [
-    ["Benny(Angst)", "1:10-1:18"], 
-]
+tabelle_angst = [ ["Benny(Angst)", "1:10-1:18"]]
+```
+Funktion aufrufen 
+```python
 
 # Funktion aufrufen für jede Emotion mit dem entsprechenden Zielordner und Emotionsnamen
 schneiden_und_verschieben(tabelle_freude, basis_pfad, ziel_ordner_freude, "Freude")
@@ -610,7 +640,7 @@ schneiden_und_verschieben(tabelle_angst, basis_pfad, pfad_angst, "Angst")
 
 ### Testset für Mimik und Körper
 Das Testset für Mimik und Körper wird mithilfe dieses Algorithmus geschnitten. Eine gesamte Auflistung aller Schneidealgorithmen ist hier auffindbar. 
-Ebenso  ist das Packet shutil nötig, um die gewünschen Funtkionen `shutil.move`zu verwenden 
+Ebenso  ist das Packet shutil nötig, um die gewünschen Funtkionen `shutil.move`zu verwenden. 
 
 ```bash
 pip install shutil
