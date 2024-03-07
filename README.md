@@ -4,7 +4,7 @@
 ## Übersicht
 Dieses Bachelorarbeit erforscht die Kongruenz zwischen Mimik, Körpersprache und Sprache durch den Einsatz vortrainierter CNN-Netzwerke. Speziell für Mimik und Körpersprache wurde ein eigenes Dataset erstellt. Tests erfolgen auf separaten Datensätzen, die die Emotionen einer Person zu einem bestimmten Zeitpunkt erfassen – für Mimik und Körpersprache als Frame und für Sprache als Audioframe (Monolog, 2-10 Sekunden, im Moment der Expression). Anschließend wird mittels des Pearson-Korrelationskoeffizienten eine paarweise Korrelationsanalyse durchgeführt. 
 
-Hinweis: Die Datenintegration(Pfade zu Bilder) wurde gekürzt, damit die Dokumentation übersichtlicher erscheint. Die vollständigen Daten sind der Exeltabelle zu entnehmen. Für die Reproduktion des Projekts können die bereits bearbeiteten Datasets verwendet werden.
+Hinweis: Die Datenintegration(Pfade zu Bilder) wurde gekürzt, damit die Dokumentation übersichtlicher erscheint. Die vollständigen Daten sind der [Exeltabelle](Data/Timestamps) zu entnehmen. Für die Reproduktion des Projekts können die bereits bearbeiteten Datasets verwendet werden.
 
 ## Installation und Setup
 #### Hardware
