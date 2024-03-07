@@ -60,14 +60,13 @@ timestamp_sequences_freude = [
     ((121, 122), "freude"),  # 2:01
     ((180, 181), "freude"),  # 3:00
     ((192, 193), "freude"),  # 3:12
-    # Fügen Sie hier die Zeitstempel-Sequenzen für Benny_Freude hinzu
+    
 ]
 
 # Pfad zu den Emotionsordnern
 emotion_folders = {
    "freude": "Pfad",
-   "angst": "Pfad"
-}
+   }
 
 # Videocapture-Objekt erstellen
 cap_freude = cv2.VideoCapture(video_path_freude)
@@ -241,7 +240,7 @@ for file in os.listdir(source_base_path):
         # Extrahiere die letzten zwei Buchstaben des Dateinamens
         emotion_code = file_name_without_numbers[-2:]
         
-        # Finde den entsprechenden Emotionsordner basierend auf dem Code
+        # Finde den entsprechenden Emotionsordner
         target_folder = emotion_folders.get(emotion_code)
         if target_folder:
             # Erstelle den vollständigen Pfad zum Zielordner
@@ -373,7 +372,7 @@ from tensorflow.keras.applications import DenseNet169
 ```
 
 
-*Data Augmentation* wird durchgeführt, um die Variabilität der Trainingsdaten zu erhöhen, indem Bilder gedreht, gespiegelt und im Kontrast angepasst werden. Dabei werden moderate Einstellungen verwendet, um sicherzustellen, dass das Modell weiterhin effektiv lernt, ohne zu underfitten.
+`Data Augmentation` wird durchgeführt, um die Variabilität der Trainingsdaten zu erhöhen, indem Bilder gedreht, gespiegelt und im Kontrast angepasst werden. Dabei werden moderate Einstellungen verwendet, um sicherzustellen, dass das Modell weiterhin effektiv lernt, ohne zu underfitten.
 ```python
 # Data Augmentation Layer hinzufügen
 data_augmentation = tf.keras.Sequential([
@@ -384,7 +383,7 @@ data_augmentation = tf.keras.Sequential([
 
 ```
 
-Das Preprocessing der Daten erfolgt mit der Keras-Bibliothek. Hierbei werden die Bilder für das Training des neuronalen Netzwerks vorbereitet, indem sie skaliert und normalisiert werden. Dieser Schritt ist entscheidend, um sicherzustellen, dass das Modell die Daten effizient verarbeiten kann und die Input-Daten in einem einheitlichen Format vorliegen.
+Das `Preprocessing` der Daten erfolgt mit der Keras-Bibliothek. Hierbei werden die Bilder für das Training des neuronalen Netzwerks vorbereitet, indem sie skaliert und normalisiert werden. Dieser Schritt ist entscheidend, um sicherzustellen, dass das Modell die Daten effizient verarbeiten kann und die Input-Daten in einem einheitlichen Format vorliegen.
 
 ```python
 # Funktion zur Vorbereitung und Augmentation der Bilder
@@ -425,7 +424,7 @@ val_ds = preprocess_and_augment_dataset(val_ds)
 # Betitelung für Tensorboard
 experiment_name = "DenseNet169"
 ```
-Das *DenseNet169*-Modell wird geladen und die Basisschichten für das Fine-Tuning eingefroren. Durch das Einfrieren dieser Schichten werden die vortrainierten Gewichte beibehalten, während nur die oberen Schichten des Netzwerks für die spezifische Aufgabe trainiert werden. Dieser Ansatz ermöglicht es, von den bereits gelernten Merkmalen des Netzwerks auf umfangreichen Datensätzen zu profitieren und gleichzeitig die Modellanpassung auf die spezifischen Anforderungen der aktuellen Aufgabe zu fokussieren.
+Das `DenseNet169`-Modell wird geladen und die Basisschichten für das Fine-Tuning eingefroren. Durch das Einfrieren dieser Schichten werden die vortrainierten Gewichte beibehalten, während nur die oberen Schichten des Netzwerks für die spezifische Aufgabe trainiert werden. Dieser Ansatz ermöglicht es, von den bereits gelernten Merkmalen des Netzwerks auf umfangreichen Datensätzen zu profitieren und gleichzeitig die Modellanpassung auf die spezifischen Anforderungen der aktuellen Aufgabe zu fokussieren.
 
 ```python
 # Vortrainiertes Modell laden
@@ -441,7 +440,7 @@ outputs = Dense(4, activation='softmax')(x)  # 4 Klassen für Emotionen
 model = Model(inputs, outputs)
 ```
 
-Das Modell nutzt den Optimierer 'adam' für effizientes Lernen durch adaptive Lernraten, kompiliert mit 'sparse_categorical_crossentropy' für die Verlustfunktion und 'accuracy' als Leistungsmetrik. TensorBoard wird für die Echtzeit-Visualisierung von Trainingsmetriken hinzugefügt, was die Optimierung und Anpassung des Trainingsprozesses erleichtert.
+Das Modell nutzt den Optimierer `adam` für effizientes Lernen durch adaptive Lernraten, kompiliert mit `sparse_categorical_crossentropy` für die Verlustfunktion und `accuracy` als Leistungsmetrik. `TensorBoard` wird für die Echtzeit-Visualisierung von Trainingsmetriken hinzugefügt, was die Optimierung und Anpassung des Trainingsprozesses erleichtert.
 
 ```python
 # Modell kompilieren und trainieren
