@@ -612,11 +612,11 @@ Für die Feature-Extraktion aus Audiodateien wird die `librosa`-Bibliothek einge
 
 - **Mel-Spektrogramm:** Eine visuelle Darstellung des Spektrums der Frequenzen eines Signals, wie sie über die Zeit variieren, ebenfalls basierend auf der Mel-Skala. Es wird oft in der Musik- und Spracherkennung verwendet, um die Energieverteilung bei verschiedenen Frequenzen zu zeigen.
 
-- **Chromagramm:** Ein Diagramm, das die Intensität der zwölf verschiedenen Tonhöhenklassen oder Chroma zeigt, unabhängig von der Oktavlage. Es ist nützlich für die Analyse von Musik, da es Informationen über die Harmonie liefert.
+- **Spektraler Kontrast:** Misst den Kontrast in den spektralen Spitzen und Tälern des Signals. Es wird verwendet, um unterschiedliche Klangtexturen zu differenzieren.
 
-- **RMSE** (Root Mean Square Error): Misst die durchschnittliche Größe der Fehler zwischen den vorhergesagten und den tatsächlichen Werten. Es wird verwendet, um die Genauigkeit von Vorhersagemodellen zu bewerten, indem es einen Einblick in die durchschnittliche Fehlergröße gibt und somit bei der Optimierung und Verbesserung von Vorhersagealgorithmen hilft.
+- **RMSE (Root Mean Square Error):** Misst die durchschnittliche Größe der Fehler zwischen den vorhergesagten und den tatsächlichen Werten. Es wird verwendet, um die Genauigkeit von Vorhersagemodellen zu bewerten, indem es einen Einblick in die durchschnittliche Fehlergröße gibt und somit bei der Optimierung und Verbesserung von Vorhersagealgorithmen hilft.
 
-- **ZCR** (Zero Crossing Rate): Misst die Häufigkeit, mit der das Audiosignal die Nulllinie überquert. Diese Metrik wird verwendet, um die Eigenschaften des Klangs zu analysieren, insbesondere seine Rauheit oder Glätte. ZCR ist nützlich in Anwendungen wie Spracherkennung, Musikgenre-Klassifizierung und Instrumentenerkennung, da es Einblicke in die Textur des Audiosignals gibt.
+- **ZCR (Zero Crossing Rate):** Misst die Häufigkeit, mit der das Audiosignal die Nulllinie überquert. Diese Metrik wird verwendet, um die Eigenschaften des Klangs zu analysieren, insbesondere seine Rauheit oder Glätte. ZCR ist nützlich in Anwendungen wie Spracherkennung, Musikgenre-Klassifizierung und Instrumentenerkennung, da es Einblicke in die Textur des Audiosignals gibt.
 
 ```python
 import os
