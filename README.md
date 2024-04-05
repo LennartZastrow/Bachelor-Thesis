@@ -322,7 +322,7 @@ process_videos(video_folder, output_base_folder)
 
 
 ### Sprache
-Für die Audioanalyse im Rahmen dieses Projekts wurde kein eigenes Datenset erstellt, stattdessen wurden drei verschiedene externe Datensets genutzt:
+Für die Audioanalyse im Rahmen dieses Projekts wurde kein eigenes Datenset erstellt, stattdessen wurden fünf verschiedene externe Datensets genutzt:
 
 - **RAVDESS Dataset**: Zugänglich [hier](https://www.kaggle.com/datasets/uwrfkaggler/ravdess-emotional-speech-audio). 
 
@@ -332,7 +332,7 @@ Für die Audioanalyse im Rahmen dieses Projekts wurde kein eigenes Datenset erst
 
 - **SAVEE Dataset**: Der Download ist [hier](https://www.tensorflow.org/datasets/catalog/savee) möglich.
 
-  **TESS Dataset**: Der Download ist [hier](https://www.kaggle.com/datasets/ejlok1/toronto-emotional-speech-set-tess) möglich.
+- **TESS Dataset**: Der Download ist [hier](https://www.kaggle.com/datasets/ejlok1/toronto-emotional-speech-set-tess) möglich.
 
 ##### CREMA Dataset
 Das CREMA-D Dataset repräsentiert eine umfangreiche Kollektion von multimodalen emotionalen Aufzeichnungen, bestehend aus 7.442 authentischen Videoclips, die von 91 Darstellenden unterschiedlicher ethnischer Zugehörigkeit, im Altersspektrum von 20 bis 74 Jahren, produziert wurden (Cao et al., 2014). Die Darsteller*innen präsentierten eine Auswahl von zwölf Phrasen, die sechs divergierende Emotionen – Ärger, Abscheu, Furcht, Freude, Neutralität und Trauer – in vier Intensitätsgraden (gering, mittel, hoch, nicht spezifiziert) zum Ausdruck bringen. Die Evaluation der emotionalen Ausdrücke und ihre Intensität wurde durch einen Crowd-Sourcing-Ansatz realisiert, bei dem 2.443 Bewerter*innen insgesamt 90 unterschiedliche Clips beurteilten.
