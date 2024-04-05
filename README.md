@@ -23,7 +23,7 @@ Für eine optimale Leistung basiert das Setup auf einem Intel Core i9 13900HX Pr
 #### Enviroment-Aufbau
 Für die Einrichtung des Arbeitsumfelds müssen folgende Pakete installiert werden:
 ```bash 
-pip install numpy matplotlib pandas librosa mtcnn
+pip install numpy matplotlib pandas librosa mtcnn seaborn scikit-learn cv2 shutil moviepy
 ```
 
 **TensorFlow GPU** wurde installiert, um die Berechnungsgeschwindigkeit und Effizienz zu maximieren. GPUs ermöglichen parallele Verarbeitung, was das Training und die Inferenz von Deep-Learning-Modellen erheblich beschleunigt.
@@ -537,7 +537,6 @@ model.fit(
     epochs=2, 
     callbacks=[tensorboard_callback]
 )
-
 ```
 
 ### Sprache
