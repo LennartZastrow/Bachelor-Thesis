@@ -10,7 +10,7 @@ Hinweis: Aus Gründen der Übersichtlichkeit wurde die Datenintegration (Pfade z
 1.  [Übersicht](#übersicht)
 2.  [Installation und Setup](#installation-und-setup)
 3.  [Dataset](#dataset)
-4.  [Verarbeitung und Integration bestehender Datasets](#Verarbeitung-und-Integration-bestehender-Datasets)
+4.  [Verarbeitung und Integration bestehender Datasets](Verarbeitung-und-Integration-bestehender-Datasets)
 5.  [Models](#models)
 6.  [Testdata für Korrelationsanalyse](#testdata-für-korrelationsanalyse)
 7.  [Korrelationsanalyse](#korrelationsanalyse)
@@ -253,6 +253,73 @@ for file in os.listdir(source_base_path):
 ```
 
 #### GEMEP-Corpus
+Der von Bänziger, Mortillaro und Scherer (2012) entwickelte "Geneva Multimodal Emotion Portrayals" (GEMEP) Corpus bietet eine umfangreiche Kollektion emotionaler Ausdrücke, die durch Video- und Audioaufnahmen dokumentiert sind. Dieser Datensatz deckt ein breites Spektrum an Emotionen ab und ist speziell für die experimentelle Forschung im Bereich der Emotionswahrnehmung konzipiert. Die Aufbereitung des GEMEP-Corpus für die Analyse mittels CNNs umfasst die Extraktion relevanter Frames aus den Videodateien. Dieser musste geschnitten und nach den entsprechenden Emotionen sortiert werden. Dabei ist anzumerken, dass Emotionskategorien zusammengefasst wurden, wie beispielsweise Anxiety und Fear oder Amusement und Joy. 
+
+```python
+import cv2
+import os
+import re
+
+# Pfad zum Ordner mit den Videodateien
+video_folder = r"C:\Users\zastr\Desktop\Thesis\Data\Frames\Externe_Datasets\GEMEP_Body_language"
+# Pfad zum Zielordner für die Frames
+output_base_folder = r"C:\Users\zastr\Desktop\Thesis\Data\Frames\Externe_Datasets\Gemep_pictures"
+
+# Emotionskategorien und die entsprechenden Zielordner
+emotions = {
+    'Angst': ['anx', 'fea'],
+    'Trauer': ['sad'],
+    'Ekel': ['dis'],
+    'Freude': ['amu', 'joy', 'ple']
+}
+
+# Funktion, um Videos in Frames zu schneiden und zu sortieren
+def process_videos(video_folder, output_base_folder):
+    for filename in os.listdir(video_folder):
+        if not filename.endswith('.avi'):
+            continue
+        
+        # Emotion im Dateinamen finden
+        match = re.search(r'B\d{2}(\w+)_', filename)
+        if not match:
+            continue
+
+        emotion_code = match.group(1)
+        for emotion, codes in emotions.items():
+            if any(code in emotion_code for code in codes):
+                # Video öffnen
+                video_path = os.path.join(video_folder, filename)
+                cap = cv2.VideoCapture(video_path)
+                
+                # Frame-Rate des Videos überprüfen
+                fps = cap.get(cv2.CAP_PROP_FPS)
+                target_fps = 20
+                frame_interval = max(int(fps) // target_fps, 1)
+                
+                frame_count = 0
+                saved_frame_count = 0
+                while True:
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    
+                    # Jeden frame_interval-ten Frame speichern
+                    if frame_count % frame_interval == 0:
+                        output_folder = os.path.join(output_base_folder, emotion)
+                        os.makedirs(output_folder, exist_ok=True)
+                        output_path = os.path.join(output_folder, f"{filename[:-4]}_frame{saved_frame_count}.jpg")
+                        cv2.imwrite(output_path, frame)
+                        saved_frame_count += 1
+                    
+                    frame_count += 1
+
+                cap.release()
+                break
+
+# Videos verarbeiten
+process_videos(video_folder, output_base_folder)
+```
+
 
 ### Sprache
 Für die Audioanalyse im Rahmen dieses Projekts wurde kein eigenes Datenset erstellt, stattdessen wurden drei verschiedene externe Datensets genutzt:
