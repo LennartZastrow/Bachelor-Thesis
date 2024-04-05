@@ -604,6 +604,58 @@ model.fit(
     callbacks=[tensorboard_callback]
 )
 ```
+Es wurde `pandas`zur Visualiserung aller Testergebnnisse bezüglich der Testgenaugikeit als Säulendiagramme verwendet.
+Einmal ohne Dataaugmenation: 
+
+```python
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Daten vorbereiten
+model_names = ['VGG16', 'VGG19', 'ResNet50', 'ResNet101', 'InceptionNetV3', 'DenseNet161', 'EfficientNetB7']
+accuracies = [96.96, 98.08, 97.28, 95.21, 96.49, 97.44, 96.33]
+
+# Ein DataFrame erstellen
+data = pd.DataFrame({'Model': model_names, 'Accuracy': accuracies})
+
+# Balkendiagramm mit Seaborn erstellen
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Model', y='Accuracy', data=data, palette='Blues_d')
+
+# Ästhetik anpassen
+plt.title('Testaccuracy ohne Dataaugmentation', fontsize=16)
+plt.ylim(90, 100)
+plt.ylabel('Accuracy (%)', fontsize=14)
+plt.xlabel('Model', fontsize=14)
+plt.xticks(rotation=45)
+sns.despine()
+
+# Diagramm anzeigen
+plt.show()
+```
+Einmal mit Dataaugmentation: 
+```python
+# Daten für Testaccuracy mit Dataaugmentation aktualisieren
+accuracies_augmentation = [93.77, 42.81, 45.21, 66.93, 42.65, 97.28, 87.64]
+data_augmentation = pd.DataFrame({'Model': model_names, 'Accuracy': accuracies_augmentation})
+
+# Balkendiagramm mit Seaborn für Dataaugmentation-Daten erstellen
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Model', y='Accuracy', data=data_augmentation, palette='Blues_d')
+
+# Ästhetik anpassen 
+plt.title('Testaccuracy mit Dataaugmentation', fontsize=16)
+plt.ylim(40, 100)  # Anpassung der y-Achse aufgrund niedrigerer Werte
+plt.ylabel('Accuracy (%)', fontsize=14)
+plt.xlabel('Model', fontsize=14)
+plt.xticks(rotation=45)
+sns.despine()
+
+# Diagramm anzeigen
+plt.show()
+```
+
 
 ### Sprache
 Für die Feature-Extraktion aus Audiodateien wird die `librosa`-Bibliothek eingesetzt. Die extrahierten Features umfassen:
