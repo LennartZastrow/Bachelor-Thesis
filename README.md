@@ -10,7 +10,7 @@ Hinweis: Aus Gründen der Übersichtlichkeit wurde die Datenintegration (Pfade z
 1.  [Übersicht](#übersicht)
 2.  [Installation und Setup](#installation-und-setup)
 3.  [Dataset](#dataset)
-4.  [Verarbeitung und Integration bestehender Datasets](Verarbeitung-und-Integration-bestehender-Datasets)
+4.  [Verarbeitung und Integration bestehender Datasets](#Verarbeitung-und-Integration-bestehender-Datasets)
 5.  [Models](#models)
 6.  [Testdata für Korrelationsanalyse](#testdata-für-korrelationsanalyse)
 7.  [Korrelationsanalyse](#korrelationsanalyse)
@@ -261,7 +261,88 @@ Für die Audioanalyse im Rahmen dieses Projekts wurde kein eigenes Datenset erst
 
 - **EMO-Database**: Verfügbar [hier](https://www.kaggle.com/datasets/piyushagni5/berlin-database-of-emotional-speech-emodb). 
 
-- **GEMEP-Corpus**: Der Download ist [hier](https://www.unige.ch/cisa/gemep) möglich.
+- **CREMA Dataset**: Der Download ist [hier](https://www.kaggle.com/datasets/ejlok1/cremad) verfügbar.
+
+- **SAVEE Dataset**: Der Download ist [hier](https://www.tensorflow.org/datasets/catalog/savee) möglich.
+
+  **TESS Dataset**: Der Download ist [hier](https://www.kaggle.com/datasets/ejlok1/toronto-emotional-speech-set-tess) möglich.
+
+##### CREMA Dataset
+Das CREMA-D Dataset repräsentiert eine umfangreiche Kollektion von multimodalen emotionalen Aufzeichnungen, bestehend aus 7.442 authentischen Videoclips, die von 91 Darstellenden unterschiedlicher ethnischer Zugehörigkeit, im Altersspektrum von 20 bis 74 Jahren, produziert wurden (Cao et al., 2014). Die Darsteller*innen präsentierten eine Auswahl von zwölf Phrasen, die sechs divergierende Emotionen – Ärger, Abscheu, Furcht, Freude, Neutralität und Trauer – in vier Intensitätsgraden (gering, mittel, hoch, nicht spezifiziert) zum Ausdruck bringen. Die Evaluation der emotionalen Ausdrücke und ihre Intensität wurde durch einen Crowd-Sourcing-Ansatz realisiert, bei dem 2.443 Bewerter*innen insgesamt 90 unterschiedliche Clips beurteilten.
+
+```python
+import os
+import shutil
+
+# Pfade definieren
+source_dir = r"C:\Users\zastr\Desktop\Thesis\Data\Audio\Raw Datasets\Crema"
+dest_base_dir = r"C:\Users\zastr\Desktop\Thesis\Data\Audio\Externe_Datasets\Externe_Data"
+
+# Emotionszuordnungen
+emotion_map = {
+    "FEA": "Angst",
+    "DIS": "Ekel",
+    "SAD": "Trauer",
+    "HAP": "Freude"
+}
+
+# Durch das Quellverzeichnis iterieren
+for file_name in os.listdir(source_dir):
+    for emotion_code, emotion_dir in emotion_map.items():
+        if emotion_code in file_name:
+            source_path = os.path.join(source_dir, file_name)
+            dest_path = os.path.join(dest_base_dir, emotion_dir, file_name)
+
+            # Stelle sicher, dass das Zielverzeichnis existiert
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
+            # Datei verschieben
+            shutil.copy(source_path, dest_path)
+            print(f"Datei {file_name} wurde nach {dest_path} verschoben.")
+
+print("Sortierung abgeschlossen.")
+```
+
+##### TESS Dataset
+Das TESS-Dataset (Toronto Emotional Speech Set) stellt eine Quelle für die Entwicklung von Emotionserkennungsalgorithmen und eine wertvolle Ergänzung zum SAVEE-Dataset dar, indem es sich ausschließlich auf qualitativ hochwertige Audioaufnahmen von weiblichen Stimmen konzentriert (Gokilavani et al. , 2022). Dieser Datensatz enthält 2.800 Audiofiles, welche 200 spezifische Zielwörter enthalten, die von zwei Schauspielerinnen im Alter von 26 und 64 Jahren in einem Trägersatz formuliert wurden. Diese Aufnahmen repräsentieren sieben unterschiedliche Emotionskategorien: Ärger, Ekel, Angst, Glück, angenehme Überraschung, Traurigkeit und Neutralität. Durch seine spezifische Struktur und den Fokus auf weibliche Stimmen trägt das TESS-Dataset dazu bei, das häufig anzutreffende Ungleichgewicht zugunsten männlicher Stimmen in vorhandenen Datensätzen auszugleichen und fördert somit eine verbesserte Generalisierbarkeit in Systemen zur Emotionserkennung (Gokilavani et al. 2022).
+
+Das TESS Dataset war schon vorab sortiert nach Emotionen und konnte somit per Hand in die Ordnerstruktur integriert werden.
+
+##### SAVEE Dataset
+Das Surrey Audio-Visual Expressed Emotion (SAVEE) Datenarchiv umfasst Audioaufzeichnungen von hoher Qualität, die von vier englischen Muttersprachler*innen im Alter zwischen 27 und 31 Jahren generiert wurden (Saxena et al., 2020). Das Archiv umfasst eine Palette von sieben Emotionskategorien: Ärger, Ekel, Furcht, Freude, Traurigkeit, Überraschung sowie eine neutrale Kategorie. Für jede Emotion werden 15 phonetisch balancierte Sätze bereitgestellt, was eine Gesamtzahl von 120 Aussagen pro Teilnehmer ergibt. Angesichts der Tatsache, dass das Archiv ausschließlich Aufnahmen von männlichen Teilnehmern beinhaltet, wird für Forschungszwecke, die eine ausgeglichene Geschlechterrepräsentation anstreben, die Ergänzung durch zusätzliche Datenarchive mit weiblichen Stimmen empfohlen. 
+
+```python
+import os
+import shutil
+
+# Pfade definieren
+source_dir = r"C:\Users\zastr\Desktop\Thesis\Data\Audio\Raw Datasets\Savee"
+dest_base_dir = r"C:\Users\zastr\Desktop\Thesis\Data\Audio\Externe_Datasets\Externe_Data"
+
+# Emotionszuordnungen für SAVEE
+emotion_map = {
+    "f": "Angst",
+    "d": "Ekel",
+    "sa": "Trauer",
+    "h": "Freude"
+}
+
+# Durch das Quellverzeichnis iterieren
+for file_name in os.listdir(source_dir):
+    for emotion_code, emotion_dir in emotion_map.items():
+        if file_name.split('_')[1].startswith(emotion_code):
+            source_path = os.path.join(source_dir, file_name)
+            dest_path = os.path.join(dest_base_dir, emotion_dir, file_name)
+
+            # Stelle sicher, dass das Zielverzeichnis existiert
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
+            # Datei verschieben
+            shutil.copy(source_path, dest_path)
+            print(f"Datei {file_name} wurde nach {dest_path} verschoben.")
+
+print("Sortierung abgeschlossen.")
+```
 
 ##### RAVDESS Dataset
 Das RAVDESS-Dataset (The Ryerson Audio-Visual Database of Emotional Speech and Song) enthält Aufnahmen, die spezifisch auf die Emotionen Ekel, Angst, Trauer und Freude fokussieren.Es umfasst 7.356 Dateien mit einem Gesamtvolumen von 24.8 GB, eingesprochen von 24 professionellen Schauspielern (12 weiblich, 12 männlich), die zwei lexikalisch abgestimmte Aussagen in einem neutralen nordamerikanischen Akzent darbieten. Alle Dateien liegen im `.wav` Format vor, welches sich optimal für die Feature-Extraktion eignet.
