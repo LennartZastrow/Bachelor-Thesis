@@ -5,7 +5,7 @@
 
 Diese Bachelorarbeit untersucht die Kongruenz zwischen Mimik, Körpersprache und Sprache mithilfe von vortrainierten CNN-Netzwerken. Ein speziell für die Analyse von Mimik und Körpersprache entwickeltes Dataset kommt zum Einsatz. Die Untersuchung wird auf separaten Datensätzen durchgeführt, welche die Emotionen einer Person zu einem bestimmten Zeitpunkt erfassen – für Mimik und Körpersprache in Form von Frames und für Sprache als Audioframes (Monologe von 2-10 Sekunden Länge, zum Zeitpunkt der Expression). Anschließend erfolgt eine paarweise Korrelationsanalyse mittels des Pearson-Korrelationskoeffizienten.
 
-Hinweis: Aus Gründen der Übersichtlichkeit wurde die Datenintegration (Pfade zu Bildern) in dieser Dokumentation gekürzt. Die vollständigen Informationen sind in der [Exeltabelle](Data/Timestamps) hinterlegt. Für die Reproduktion des Projekts können die bereits aufbereiteten Datasets verwendet werden.
+Hinweis: Aus Gründen der Übersichtlichkeit wurde die Datenintegration (Pfade zu Bildern) in dieser Dokumentation gekürzt.  Die vollständigen Informationen sind in der [Exeltabelle](Data/Timestamps) hinterlegt. Für die Reproduktion des Projekts können die bereits aufbereiteten Datasets verwendet werden. Ebenso werden redundante Codes nur einmal aufgeführt.
 
 1.  [Übersicht](#übersicht)
 2.  [Installation und Setup](#installation-und-setup)
@@ -708,3 +708,238 @@ ziel_ordner = r"C:\Users\zastr\Desktop\Thesis\Data\Testdata\Mimik\Freude"
 # Funktion aufrufen
 kopieren_und_benennen(dateipfade, ziel_ordner)
 ```
+
+## Erstellung von Dataframes für die Korrelationsanalyse
+Nun können die erstellten externen Testdaten mihilfe von der `predict` Funktion aus dem Model getestet werden und dann als Dataframe abgespeichert werden. Anschließend werden die Softmax-Funktionen als Dataframe ausgegeben. 
+
+### Mimik 
+```python
+# Funktion, um ein einzelnes Bild zu laden und vorzubereiten
+def load_and_prepare_image(img_path):
+    img = image.load_img(img_path, target_size=(224, 224))
+    img_array = image.img_to_array(img)
+    img_array_expanded_dims = np.expand_dims(img_array, axis=0)
+    return preprocess_input(img_array_expanded_dims)
+
+# Liste für die Ergebnisse
+results = []
+
+# Emotionen
+emotion_labels = ['Angst', 'Ekel', 'Trauer', 'Freude']
+
+# Pfad zum zusätzlichen Testdataset
+test_data_path = "C:/Users/zastr/Desktop/Thesis/Data/Testdata/Mimik"
+
+# Vorhersagen für jedes Bild im Testset machen und in der Liste speichern
+for emotion in emotion_labels:
+    emotion_path = os.path.join(test_data_path, emotion)
+    for img_file in os.listdir(emotion_path):
+        img_path = os.path.join(emotion_path, img_file)
+        img_prepared = load_and_prepare_image(img_path)
+        predictions = model.predict(img_prepared)[0]  # Nimmt die Vorhersagen für das erste (und einzige) Bild
+        
+        # Erstelle ein Dictionary mit den Ergebnissen
+        result_dict = {'Bild': img_file}
+        for i, label in enumerate(emotion_labels):
+            result_dict[f'Mimik_{label}'] = predictions[i]
+            
+        # Füge das Dictionary zur Liste hinzu
+        results.append(result_dict)
+
+# Konvertiere die Liste in einen DataFrame
+df_mimik = pd.DataFrame(results)
+```
+
+### Körpersprache
+
+```python
+# Testdaten für jede Emotion evaluieren und DataFrame erstellen
+test_dataset_path = r"C:\Users\zastr\Desktop\Thesis\Data\Testdata_korrelation\Körpersprache"
+predictions = []
+filenames = []
+
+# Durch alle Emotionen iterieren und Vorhersagen sammeln
+for emotion in ["Angst", "Freude", "Ekel", "Trauer"]:
+    emotion_path = f"{test_dataset_path}\\{emotion}"
+    emotion_ds = image_dataset_from_directory(
+        emotion_path,
+        image_size=(224, 224),
+        batch_size=32,
+        shuffle=False,
+        labels=None
+    )
+    emotion_filenames = emotion_ds.file_paths
+    emotion_predictions = model.predict(emotion_ds.map(preprocess_input))
+    
+    filenames.extend(emotion_filenames)
+    predictions.extend(emotion_predictions)
+
+# DataFrame erstellen
+df = pd.DataFrame(predictions, columns=['body_angst', 'body_freude', 'body_ekel', 'body_trauer'])
+df['Bildname'] = [filename.split('\\')[-1] for filename in filenames]
+print(df)
+
+# DataFrame als CSV speichern
+df.to_csv("C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Testdata_korrelation\\DF_korrelationsanalyse\\DF_korrelationsanalyse_body.csv", index=False)
+```
+### Sprache
+
+Vorerst werden die externen Testdaten geladen und mithilfe der `predict`Funktion auf das zuvor trainierte Netzwerk getestet.
+
+```python
+# Laden der externen Testdaten
+external_base_path = "C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Testdata_korrelation"
+external_features, external_labels, external_file_names = load_external_test_data_with_labels(external_base_path)
+
+# Normalisierung der externen Testdaten mit dem gespeicherten Skalierer
+external_features_normalized = scaler.transform(external_features)
+
+# Bewertung auf externen Testdaten
+predictions = model.predict(external_features_normalized)
+predicted_classes = np.argmax(predictions, axis=1)
+external_test_acc = accuracy_score(external_labels, predicted_classes)
+print(f'Externe Testdaten Genauigkeit: {external_test_acc}')
+```
+Danach kann dann der Dataframe ausgegeben werden und als `csv`gespeichert werden für die Korrelationsanalyse
+
+```python
+import pandas as pd
+
+# für Floatdarstellung
+pd.set_option('display.float_format', '{:.4f}'.format)
+
+# Erstellung des DataFrames
+emotions = ['Sprache_Angst', 'Sprache_Ekel', 'Sprache_Freude', 'Sprache_Trauer']
+df_predictions = pd.DataFrame(predictions, columns=emotions)
+df_predictions['Dateiname'] = external_file_names
+df_predictions['Wahre Emotion'] = external_labels 
+df_predictions = df_predictions[['Dateiname', 'Wahre Emotion'] + emotions]
+print(df_predictions)
+df.to_csv("C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Testdata_korrelation\\DF_korrelationsanalyse\\df_korrelationsanalyse_sprache.csv", index=False)
+```
+
+### Visualisierung der individuellen Heatmaps
+Die gespeichterten `csv`s der Softmax-Funktionen werden nun als individuelle Heatmaps visualisert. Das anpassen der Varibale und des entsprechenden Dataframes sind notwendig. Dies ist der Beispielcode für Körpersprache. 
+
+```python
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+# Zuerst extrahieren wir die Emotionsbezeichnung aus dem Bildnamen
+df['Emotion'] = df['Bildname'].apply(lambda x: x.split('.')[0].rstrip('0123456789'))
+
+# Wähle nur die numerischen Spalten (die Wahrscheinlichkeiten) für die Aggregation
+numerische_spalten = ['body_angst', 'body_freude', 'body_ekel', 'body_trauer']
+
+# Gruppiere den DataFrame nach 'Emotion' und berechne den Durchschnitt für die numerischen Spalten
+emotion_durchschnitt = df.groupby('Emotion')[numerische_spalten].mean()
+
+# Überprüfe, ob der resultierende DataFrame leer ist oder nur NaN-Werte enthält
+if emotion_durchschnitt.empty or emotion_durchschnitt.isna().all().all():
+    print("Der DataFrame für die Heatmap ist leer oder enthält nur NaN-Werte.")
+else:
+    # Erstelle die Heatmap, wenn gültige Daten vorhanden sind
+    plt.figure(figsize=(10, 6))
+    ax = sns.heatmap(emotion_durchschnitt, annot=True, fmt=".4f", cmap='viridis', linewidths=.5)
+    # Y-Achsen-Beschriftungen in einem 45-Grad-Winkel anzeigen
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+    plt.title('Durchschnittliche Erkennungswahrscheinlichkeiten pro Emotion')
+    plt.xlabel('Erkennungswahrscheinlichkeit')
+    plt.ylabel('Emotion')
+    plt.show()
+```
+
+
+## Korrelationsanalyse
+Für die Korrelationsanalyse werden erst die Pfade geladen und die Dataframes geladen
+
+```python
+import pandas as pd
+
+# Pfade zu den CSV-Dateien
+pfad_koerpersprache = "C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Testdata_korrelation\\DF_korrelationsanalyse\\DF_korrelationsanalyse_body.csv"
+pfad_mimik = "C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Testdata_korrelation\\DF_korrelationsanalyse\\DF_korrelationsanalyse_mimik.csv"
+pfad_sprache = "C:\\Users\\zastr\\Desktop\\Thesis\\Data\\Testdata_korrelation\\DF_korrelationsanalyse\\df_korrelationsanalyse_sprache.csv"
+
+# Laden der DataFrames aus den CSV-Dateien
+df_koerpersprache = pd.read_csv(pfad_koerpersprache)
+df_mimik = pd.read_csv(pfad_mimik)
+df_sprache = pd.read_csv(pfad_sprache)
+```
+
+Zur einheitlichen Darstellung muss vorerst noch Datacleaning betrieben werden
+### Mimik
+```python
+# Datacleaning Mimik
+df_mimik = df_mimik.drop(df_mimik.columns[-1], axis=1)
+# DF standatisieren
+df_mimik.rename(columns={df_mimik.columns[0]: 'Dateiname'}, inplace=True)
+# Format entfernen zum Mergen
+df_mimik['Dateiname'] = df_mimik['Dateiname'].str.replace(r'\.jpg|\.wav', '', regex=True)
+```
+### Körpersprache
+```python
+# Datacleaning Körpersprache
+df_koerpersprache.rename(columns={df_koerpersprache.columns[4]:"Dateiname"}, inplace=True)
+df_koerpersprache['Dateiname'] = df_koerpersprache['Dateiname'].str.replace(r'\.jpg|\.wav', '', regex=True)
+```
+### Sprache
+```python
+# Datacleaning Sprache
+df_sprache = df_sprache.drop(df_sprache.columns[5-6], axis=1)
+# Format entferen zum Mergen
+df_sprache['Dateiname'] = df_sprache['Dateiname'].str.replace(r'\.jpg|\.wav', '', regex=True)
+```
+
+Um alle Zeilen als Dezimalzahlen anzugeben und den Dataframe vollständig auszugeben
+```python
+# Präzision der Ausgabe auf 2 Dezimalstellen festlegen
+pd.set_option('display.float_format', '{:.4f}'.format)
+
+# Setze die Anzeigeoptionen
+pd.set_option('display.max_rows', None)  # Zeigt alle Zeilen an
+pd.set_option('display.max_columns', None)  # Zeigt alle Spalten an
+```
+
+Nun werden die Dataframes verbunden, um die Heatmap für die Korrelationsanalyse vorzubereiten. 
+
+```python
+
+# Zusammenführen der Dataframes für Mimimk und Sprache
+df_mimik_sprache = pd.merge(df_mimik, df_sprache, on='Dateiname', suffixes=('_mimik', '_sprache'))
+df_mimik_sprache = df_mimik_sprache.drop(df_mimik_sprache.columns[9], axis=1)
+
+# Zusammenführen der Dataframes für Mimik und Körpersprache
+df_mimik_koerpersprache = pd.merge(df_mimik,df_koerpersprache, on= "Dateiname", suffixes=("_mimik", "_body"))
+
+# Zusammenführen der Dataframes für Sprache und Körpersprache
+df_koerpersprache_sprache = pd.merge(df_sprache,df_koerpersprache, on= "Dateiname", suffixes=("_body","_sprache"))
+```
+Die Dataframes können nun als Heatmap mithilfe von `seaborn`ausgegeben werden. Hier muss nur die Varibale `numerische_daten` angepasst werdet mithilfe der unterschiedlichen Dataframes `df_mimik_sprache`, `df_mimik_koerpersprache`, `df_koerpersprache_sprache`. 
+
+```python
+# Import von Seaborn und Matplotlib
+import seaborn as sns
+import matplotlib.pyplot as plt
+```
+
+```python
+# Selektiere nur numerische Spalten des DataFrames, bevor du die Korrelation berechnest
+numerische_daten = df_mimik_sprache.select_dtypes(include=['float64', 'int64'])
+
+# Berechnung der Pearson-Korrelation auf den numerischen Daten
+correlation_matrix = numerische_daten.corr(method='pearson')
+
+# Ausgabe der Korrelationsmatrix
+print(correlation_matrix)
+
+# Heatmap der Korrelationsmatrix anzeigen
+plt.figure(figsize=(12, 10))
+sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm')
+plt.title('Pearson-Korrelationsmatrix')
+plt.show()
+```
+
+
