@@ -13,7 +13,7 @@ Hinweis: Aus Gründen der Übersichtlichkeit wurde die Datenintegration (Pfade z
 4.  [Verarbeitung und Integration bestehender Datasets](#verarbeitung-und-integration-bestehender-datasets)
 5.  [Models](#models)
 6.  [Testdata für Korrelationsanalyse](#testdata-für-korrelationsanalyse)
-7.  [Erstellung von Dataframes für die Korrelationsanalyse](#erstellung-von-dataframes-fuer-die-korrelationsanalyse)
+7.  [Erstellung von Dataframes für die Korrelationsanalyse](#erstellung-von-dataframes-für-die-korrelationsanalyse)
 8.  [Korrelationsanalyse](#korrelationsanalyse)
 
 
