@@ -114,7 +114,7 @@ def process_timestamp_sequences(sequences, cap, fps, frame_interval):
             frame_count += frame_interval
             file_count += 1
 
-# Frames extrahieren und verarbeiten für 
+# Frames extrahieren und verarbeiten
 process_timestamp_sequences(timestamp_sequences_freude, cap_freude, fps_freude, frame_interval_freude)
 
 # Aufräumen
@@ -165,7 +165,7 @@ for emotion in emotionen:
     for bild_datei in bilder:
         bild_pfad = os.path.join(bildordner, bild_datei)
 
-        # Lade das Bild mit OpenCV
+        # Lade das Bild
         bild = cv2.imread(bild_pfad)
 
         # Erkenne Gesichter im Bild
@@ -195,9 +195,7 @@ Um den Bildrahmen für eine vollständige Ansicht des Gesichts zu erweitern und 
             cv2.imwrite(ausgabedatei, ausschnitt)
 
 print("Fertig!")
-
 ```
-
 
 
 ## Verarbeitung und Integration bestehender Datasets
@@ -229,12 +227,11 @@ emotion_folders = {
     "FE": "Angst",
     "HA": "Freude",
     "SA": "Trauer",
-
 }
 
-# Durchsuche den Basisordner nach .bmp Bildern
+# Durchsuche den Basisordner nach .jpg Bildern
 for file in os.listdir(source_base_path):
-    if file.endswith(".bmp"):  # Berücksichtigt nur .bmp Dateien
+    if file.endswith(".jpg"):  # Berücksichtigt nur .jpg Dateien
         # Entferne Zahlen am Ende des Dateinamens, falls vorhanden
         file_name_without_numbers = ''.join([i for i in file[:-4] if not i.isdigit()])
         # Extrahiere die letzten zwei Buchstaben des Dateinamens
@@ -318,6 +315,7 @@ def process_videos(video_folder, output_base_folder):
 
 # Videos verarbeiten
 process_videos(video_folder, output_base_folder)
+print("Fertig!.")
 ```
 
 
@@ -364,7 +362,7 @@ for file_name in os.listdir(source_dir):
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 
             # Datei verschieben
-            shutil.copy(source_path, dest_path)
+            shutil.move(source_path, dest_path)
             print(f"Datei {file_name} wurde nach {dest_path} verschoben.")
 
 print("Sortierung abgeschlossen.")
@@ -405,7 +403,7 @@ for file_name in os.listdir(source_dir):
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 
             # Datei verschieben
-            shutil.copy(source_path, dest_path)
+            shutil.move(source_path, dest_path)
             print(f"Datei {file_name} wurde nach {dest_path} verschoben.")
 
 print("Sortierung abgeschlossen.")
