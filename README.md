@@ -613,40 +613,49 @@ Für die Feature-Extraktion aus Audiodateien wird die `librosa`-Bibliothek einge
 
 - **Chromagramm:** Ein Diagramm, das die Intensität der zwölf verschiedenen Tonhöhenklassen oder Chroma zeigt, unabhängig von der Oktavlage. Es ist nützlich für die Analyse von Musik, da es Informationen über die Harmonie liefert.
 
-- **Spektraler Kontrast:** Misst den Kontrast in den spektralen Spitzen und Tälern des Signals. Es wird verwendet, um unterschiedliche Klangtexturen zu differenzieren und kann zur Genreerkennung oder Instrumentenerkennung beitragen.
+- **RMSE** (Root Mean Square Error): Misst die durchschnittliche Größe der Fehler zwischen den vorhergesagten und den tatsächlichen Werten. Es wird verwendet, um die Genauigkeit von Vorhersagemodellen zu bewerten, indem es einen Einblick in die durchschnittliche Fehlergröße gibt und somit bei der Optimierung und Verbesserung von Vorhersagealgorithmen hilft.
 
-- **Tonnetz:** Eine Darstellung von harmonischen Beziehungen zwischen Tönen. Es basiert auf Tonhöhenklassen und wird oft für die Analyse von musikalischer Harmonie und Tonart verwendet.
+- **ZCR** (Zero Crossing Rate): Misst die Häufigkeit, mit der das Audiosignal die Nulllinie überquert. Diese Metrik wird verwendet, um die Eigenschaften des Klangs zu analysieren, insbesondere seine Rauheit oder Glätte. ZCR ist nützlich in Anwendungen wie Spracherkennung, Musikgenre-Klassifizierung und Instrumentenerkennung, da es Einblicke in die Textur des Audiosignals gibt.
 
 ```python
 import os
 import numpy as np
 import librosa
+import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv1D, Flatten, Dropout, BatchNormalization, MaxPooling1D
 from tensorflow.keras.layers import LeakyReLU
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
-import matplotlib.pyplot as plt
+from tensorflow.keras.callbacks import ReduceLROnPlateau
 
-# Funktion zur Extraktion der Audio-Features
-def extract_audio_features(file_path, n_fft=512):
+def extract_audio_features(file_path, pitch_shift=0, speed_change=1.0):
     y, sr = librosa.load(file_path)
+    if pitch_shift != 0:
+        y = librosa.effects.pitch_shift(y, sr=sr, n_steps=pitch_shift)
+    if speed_change != 1.0:
+        y = librosa.effects.time_stretch(y, rate=speed_change)
+
     mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
     mel_spectrogram = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128)
-    chromagram = librosa.feature.chroma_stft(y=y, sr=sr)
     spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr)
-    tonnetz = librosa.feature.tonnetz(y=y, sr=sr)
+    zcr = librosa.feature.zero_crossing_rate(y)
+    rmse = librosa.feature.rms(y=y)
+    
     features = np.hstack((np.mean(mfccs, axis=1), 
                           np.mean(librosa.power_to_db(mel_spectrogram), axis=1),
-                          np.mean(chromagram, axis=1),
                           np.mean(spectral_contrast, axis=1),
-                          np.mean(tonnetz, axis=1)))
-    if len(features) > 193:
-        features = features[:193]
-    elif len(features) < 193:
-        features = np.pad(features, (0, 193 - len(features)), 'constant')
+                          np.mean(zcr, axis=1),
+                          np.mean(rmse, axis=1)))
+    
+    target_length = 177  
+    if len(features) > target_length:
+        features = features[:target_length]
+    elif len(features) < target_length:
+        features = np.pad(features, (0, target_length - len(features)), 'constant')
     return features
 ```
 Laden der Data und Labeln der vier Emotionen
