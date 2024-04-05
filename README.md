@@ -864,7 +864,7 @@ kopieren_und_benennen(dateipfade, ziel_ordner)
 ```
 
 ## Erstellung von Dataframes für die Korrelationsanalyse
-Nun können die erstellten externen Testdaten mihilfe von der `predict` Funktion aus dem Model getestet werden und dann als Dataframe abgespeichert werden. Anschließend werden die Softmax-Funktionen als Dataframe ausgegeben. 
+Nun können die erstellten externen Testdaten mihilfe von der `predict` Funktion aus dem Model getestet werden und dann als Dataframe abgespeichert werden. Anschließend werden die Softmax-Funktionswerte als Dataframe ausgegeben. 
 
 ### Mimik 
 ```python
