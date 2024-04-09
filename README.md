@@ -44,7 +44,7 @@ Um ein passendes Dataset für die Analyse zu erstellen, war es notwendig, die In
 
 ### Gankörperbilder
 
-Die emotionellen Ausdrücke, die innerhalb bestimmter Zeitmarken (Timestamps) dokumentiert wurden, lassen sich durch den Einsatz des bereitgestellten Codes in Einzelbilder zerlegen und mit einer Rate von 24 Frames pro Sekunde abspeichern. Interviews mit insgesamt fünf Personen wurden für diese Zwecke geführt. Die resultierenden Einzelbilder der Framesschnitte sind im [Ordner](Support_Code/Körpersprache/Fullbody_Framsplit) zu finden. Nach diesem Prozess erfolgte eine manuelle Selektion, um Bilder, die für die Analyse ungeeignet waren, auszuschließen.
+Die emotionellen Ausdrücke, die innerhalb bestimmter Zeitmarken (Timestamps) dokumentiert wurden, lassen sich durch den Einsatz des bereitgestellten Codes in Einzelbilder zerlegen und mit einer Rate von 24 Frames pro Sekunde abspeichern. Interviews mit insgesamt fünf Personen wurden für diese Zwecke geführt. Die resultierenden Einzelbilder der Framesschnitte sind im Google Drive zu finden. Nach diesem Prozess erfolgte eine manuelle Selektion, um Bilder, die für die Analyse ungeeignet waren, auszuschließen.
 
 ```python
 
@@ -120,7 +120,8 @@ process_timestamp_sequences(timestamp_sequences_freude, cap_freude, fps_freude, 
 
 # Aufräumen
 cap_allgemein.release()
-cap_trauer.release()
+cap_freude.release()
+# Die restlichen Schnitte sind dem vollständigen Code zu entnehmen.
 print("Frames erfolgreich extrahiert und gespeichert.")
 ```
 
